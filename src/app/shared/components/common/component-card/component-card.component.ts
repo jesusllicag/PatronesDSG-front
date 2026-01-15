@@ -10,5 +10,4 @@ export class ComponentCardComponent {
   @Input() title!: string;
   @Input() desc: string = "";
   @Input() className: string = "";
-  @Input() header: boolean = false;
 }
