@@ -28,6 +28,8 @@ import { SubcommunitiesComponent } from "./pages/groups/subcommunities/subcommun
 import { SubcommunityFormComponent } from "./pages/groups/subcommunities/subcommunity-form/subcommunity-form.component";
 import { CollectionsComponent } from "./pages/groups/collections/collections.component";
 import { CollectionFormComponent } from "./pages/groups/collections/collection-form/collection-form.component";
+import { AllSubcommunitiesComponent } from "./pages/groups/all-subcommunities/all-subcommunities.component";
+import { AllCollectionsComponent } from "./pages/groups/all-collections/all-collections.component";
 
 export const routes: Routes = [
   {
@@ -66,10 +68,21 @@ export const routes: Routes = [
         title: "Permisos",
       },
       // Groups - Hierarchical navigation
+      // Global views
       {
         path: "grupos/comunidades",
         component: CommunitiesComponent,
         title: "Comunidades",
+      },
+      {
+        path: "grupos/subcomunidades",
+        component: AllSubcommunitiesComponent,
+        title: "Subcomunidades",
+      },
+      {
+        path: "grupos/colecciones",
+        component: AllCollectionsComponent,
+        title: "Colecciones",
       },
       {
         path: "grupos/comunidades/nuevo",

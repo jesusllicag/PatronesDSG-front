@@ -47,7 +47,7 @@ export class AppSidebarComponent {
       name: "Grupos",
       subItems: [
         { name: "Comunidades", path: "/grupos/comunidades" },
-        { name: "Subcomunidades", path: "/grupos/sub-comunidades" },
+        { name: "Subcomunidades", path: "/grupos/subcomunidades" },
         { name: "Colecciones", path: "/grupos/colecciones" },
       ],
     },

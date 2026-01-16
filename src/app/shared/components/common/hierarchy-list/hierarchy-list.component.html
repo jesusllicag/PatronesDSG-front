@@ -1,0 +1,93 @@
+<div>
+    <app-dynamic-breadcrumb
+        [items]="breadcrumbItems()"
+        [currentPage]="currentPage()"
+    />
+
+    <div
+        class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]"
+    >
+        <!-- Header -->
+        <div
+            class="flex flex-wrap items-center justify-between gap-4 border-b border-gray-200 px-5 py-4 dark:border-gray-800 sm:px-6"
+        >
+            <div>
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">
+                    {{ config().title }}
+                </h3>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    {{ config().description }}
+                </p>
+            </div>
+            <app-button variant="primary" (btnClick)="create.emit()">
+                <svg
+                    class="w-5 h-5 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 4v16m8-8H4"
+                    />
+                </svg>
+                {{ config().createButtonLabel }}
+            </app-button>
+        </div>
+
+        <!-- Content -->
+        <div class="p-5 sm:p-6">
+            @if (entities().length === 0) {
+                <div class="text-center py-12">
+                    <div
+                        class="mx-auto w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4"
+                    >
+                        <div [innerHTML]="config().emptyStateIcon"></div>
+                    </div>
+                    <h4
+                        class="text-lg font-medium text-gray-800 dark:text-white mb-2"
+                    >
+                        {{ config().emptyStateMessage }}
+                    </h4>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                        Crea el primer elemento para comenzar.
+                    </p>
+                    <app-button variant="primary" (btnClick)="create.emit()">
+                        {{ config().createButtonLabel }}
+                    </app-button>
+                </div>
+            } @else {
+                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    @for (entity of entities(); track entity.id) {
+                        <div (click)="onCardNavigate(entity)">
+                            <app-hierarchy-card
+                                [title]="entity.name"
+                                [description]="entity.description"
+                                [level]="config().level"
+                                navigateTo=""
+                                [childCount]="entity.childCount ?? 0"
+                                [childLabel]="config().childLabel"
+                                (edit)="onEdit(entity)"
+                                (delete)="onDelete(entity)"
+                            />
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<app-confirm-modal
+    [isOpen]="isDeleteModalOpen()"
+    [title]="config().deleteModalTitle"
+    [message]="deleteMessage()"
+    confirmText="Eliminar"
+    cancelText="Cancelar"
+    variant="danger"
+    (confirm)="onConfirmDelete()"
+    (cancel)="onCancelDelete()"
+/>
