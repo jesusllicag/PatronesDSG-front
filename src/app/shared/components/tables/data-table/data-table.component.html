@@ -1,0 +1,67 @@
+<div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+  <div class="max-w-full overflow-x-auto">
+    <table class="min-w-full">
+      <thead class="border-b border-gray-100 dark:border-white/[0.05]">
+        <tr>
+          @for (column of columns(); track column.key) {
+            <th class="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+              {{ column.header }}
+            </th>
+          }
+          @if (actions().length > 0) {
+            <th class="px-5 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400">
+              Acciones
+            </th>
+          }
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100 dark:divide-white/[0.05]">
+        @if (loading()) {
+          <tr>
+            <td [attr.colspan]="columns().length + (actions().length > 0 ? 1 : 0)" class="px-5 py-8 text-center">
+              <div class="flex items-center justify-center gap-2">
+                <svg class="animate-spin h-5 w-5 text-brand-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span class="text-gray-500 dark:text-gray-400">Cargando...</span>
+              </div>
+            </td>
+          </tr>
+        } @else if (data().length === 0) {
+          <tr>
+            <td [attr.colspan]="columns().length + (actions().length > 0 ? 1 : 0)" class="px-5 py-8 text-center text-gray-500 dark:text-gray-400">
+              {{ emptyMessage() }}
+            </td>
+          </tr>
+        } @else {
+          @for (item of data(); track trackById($index, item)) {
+            <tr class="hover:bg-gray-50 dark:hover:bg-white/[0.02]">
+              @for (column of columns(); track column.key) {
+                <td class="px-5 py-4 text-gray-700 text-theme-sm dark:text-gray-300">
+                  {{ getCellValue(item, column) }}
+                </td>
+              }
+              @if (actions().length > 0) {
+                <td class="px-5 py-4">
+                  <div class="flex items-center justify-center gap-2">
+                    @for (action of actions(); track action.action) {
+                      <button
+                        type="button"
+                        [title]="action.label"
+                        [class]="'p-1.5 rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-white/[0.05] ' + getActionColorClasses(action.color)"
+                        (click)="onActionClick(action.action, item)"
+                      >
+                        <span [innerHTML]="action.icon"></span>
+                      </button>
+                    }
+                  </div>
+                </td>
+              }
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

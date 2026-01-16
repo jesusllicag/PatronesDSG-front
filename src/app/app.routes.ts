@@ -20,6 +20,14 @@ import { SignUpComponent } from "./pages/auth-pages/sign-up/sign-up.component";
 import { CalenderComponent } from "./pages/calender/calender.component";
 import { UsersComponent } from "./pages/users/users.component";
 import { DocumentsComponent } from "./pages/documents/documents.component";
+import { RolesComponent } from "./pages/policies/roles/roles.component";
+import { PermissionsComponent } from "./pages/policies/permissions/permissions.component";
+import { CommunitiesComponent } from "./pages/groups/communities/communities.component";
+import { CommunityFormComponent } from "./pages/groups/communities/community-form/community-form.component";
+import { SubcommunitiesComponent } from "./pages/groups/subcommunities/subcommunities.component";
+import { SubcommunityFormComponent } from "./pages/groups/subcommunities/subcommunity-form/subcommunity-form.component";
+import { CollectionsComponent } from "./pages/groups/collections/collections.component";
+import { CollectionFormComponent } from "./pages/groups/collections/collection-form/collection-form.component";
 
 export const routes: Routes = [
   {
@@ -44,6 +52,64 @@ export const routes: Routes = [
         component: DocumentsComponent,
         pathMatch: "full",
         title: "Documentos",
+      },
+      {
+        path: "roles",
+        component: RolesComponent,
+        pathMatch: "full",
+        title: "Roles",
+      },
+      {
+        path: "permisos",
+        component: PermissionsComponent,
+        pathMatch: "full",
+        title: "Permisos",
+      },
+      // Groups - Hierarchical navigation
+      {
+        path: "grupos/comunidades",
+        component: CommunitiesComponent,
+        title: "Comunidades",
+      },
+      {
+        path: "grupos/comunidades/nuevo",
+        component: CommunityFormComponent,
+        title: "Nueva Comunidad",
+      },
+      {
+        path: "grupos/comunidades/:id",
+        component: CommunityFormComponent,
+        title: "Editar Comunidad",
+      },
+      {
+        path: "grupos/comunidades/:communityId/subcomunidades",
+        component: SubcommunitiesComponent,
+        title: "Subcomunidades",
+      },
+      {
+        path: "grupos/comunidades/:communityId/subcomunidades/nuevo",
+        component: SubcommunityFormComponent,
+        title: "Nueva Subcomunidad",
+      },
+      {
+        path: "grupos/comunidades/:communityId/subcomunidades/:id",
+        component: SubcommunityFormComponent,
+        title: "Editar Subcomunidad",
+      },
+      {
+        path: "grupos/comunidades/:communityId/subcomunidades/:subcommunityId/colecciones",
+        component: CollectionsComponent,
+        title: "Colecciones",
+      },
+      {
+        path: "grupos/comunidades/:communityId/subcomunidades/:subcommunityId/colecciones/nuevo",
+        component: CollectionFormComponent,
+        title: "Nueva Colección",
+      },
+      {
+        path: "grupos/comunidades/:communityId/subcomunidades/:subcommunityId/colecciones/:id",
+        component: CollectionFormComponent,
+        title: "Editar Colección",
       },
       {
         path: "calendar",

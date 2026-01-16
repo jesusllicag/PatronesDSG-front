@@ -1,0 +1,65 @@
+<div>
+  <app-dynamic-breadcrumb
+    [items]="breadcrumbItems()"
+    [currentPage]="pageTitle()"
+  />
+
+  <div class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
+    <!-- Header -->
+    <div class="border-b border-gray-200 px-5 py-4 dark:border-gray-800 sm:px-6">
+      <h3 class="text-lg font-semibold text-gray-800 dark:text-white">
+        {{ pageTitle() }}
+      </h3>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        @if (isEditing()) {
+          Modifica los datos de la comunidad
+        } @else {
+          Completa los datos para crear una nueva comunidad
+        }
+      </p>
+    </div>
+
+    <!-- Form -->
+    <form (ngSubmit)="onSubmit()" class="p-5 sm:p-6">
+      <div class="max-w-2xl space-y-5">
+        <!-- Name -->
+        <div>
+          <app-label for="name">Nombre de la comunidad</app-label>
+          <app-input-field
+            id="name"
+            type="text"
+            placeholder="Ej: Pregrado, Postgrado, Investigación"
+            [value]="formData().name"
+            (valueChange)="updateFormField('name', $event.toString())"
+          />
+        </div>
+
+        <!-- Description -->
+        <div>
+          <app-label for="description">Descripción</app-label>
+          <app-text-area
+            id="description"
+            placeholder="Describe brevemente el propósito de esta comunidad"
+            [rows]="4"
+            [value]="formData().description"
+            (valueChange)="updateFormField('description', $event)"
+          />
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <app-button variant="primary" type="submit">
+            @if (isEditing()) {
+              Guardar Cambios
+            } @else {
+              Crear Comunidad
+            }
+          </app-button>
+          <app-button variant="outline" type="button" (btnClick)="onCancel()">
+            Cancelar
+          </app-button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

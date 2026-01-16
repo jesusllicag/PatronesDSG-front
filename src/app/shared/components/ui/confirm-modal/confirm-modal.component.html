@@ -1,0 +1,22 @@
+<app-modal [isOpen]="isOpen()" (close)="onCancel()" className="max-w-md">
+  <div class="p-6 text-center">
+    <div class="flex justify-center mb-4" [innerHTML]="iconSvg"></div>
+
+    <h3 class="mb-2 text-lg font-semibold text-gray-800 dark:text-white">
+      {{ title() }}
+    </h3>
+
+    <p class="mb-6 text-sm text-gray-500 dark:text-gray-400">
+      {{ message() }}
+    </p>
+
+    <div class="flex items-center justify-center gap-3">
+      <app-button variant="outline" (btnClick)="onCancel()">
+        {{ cancelText() }}
+      </app-button>
+      <app-button variant="primary" (btnClick)="onConfirm()">
+        {{ confirmText() }}
+      </app-button>
+    </div>
+  </div>
+</app-modal>

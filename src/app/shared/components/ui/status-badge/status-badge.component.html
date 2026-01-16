@@ -1,0 +1,9 @@
+<span
+  class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium"
+  [ngClass]="[config().bg, config().text]"
+>
+  @if (showDot()) {
+    <span class="h-1.5 w-1.5 rounded-full" [ngClass]="config().dot"></span>
+  }
+  {{ config().label }}
+</span>

@@ -1,0 +1,162 @@
+<div>
+    <app-page-breadcrumb pageTitle="Roles" />
+
+    <div
+        class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]"
+    >
+        <!-- Header -->
+        <div
+            class="flex flex-wrap items-center justify-between gap-4 border-b border-gray-200 px-5 py-4 dark:border-gray-800 sm:px-6"
+        >
+            <div>
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">
+                    Gestión de Roles
+                </h3>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    Administra los roles y sus permisos asociados
+                </p>
+            </div>
+            <app-button variant="primary" (btnClick)="openCreateModal()">
+                <svg
+                    class="w-5 h-5 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 4v16m8-8H4"
+                    />
+                </svg>
+                Nuevo Rol
+            </app-button>
+        </div>
+
+        <!-- Table -->
+        <div class="p-5 sm:p-6">
+            <app-data-table
+                [columns]="columns"
+                [data]="roles()"
+                [actions]="actions"
+                [loading]="loading()"
+                emptyMessage="No hay roles registrados"
+                (actionClick)="onActionClick($event)"
+            />
+        </div>
+    </div>
+</div>
+
+<!-- Form Modal -->
+<app-modal
+    [isOpen]="isFormModalOpen()"
+    (close)="closeFormModal()"
+    className="max-w-2xl"
+>
+    <div class="p-6">
+        <h3 class="mb-6 text-lg font-semibold text-gray-800 dark:text-white">
+            {{ isEditing() ? "Editar Rol" : "Nuevo Rol" }}
+        </h3>
+
+        <form (ngSubmit)="saveRole()" class="space-y-5">
+            <!-- Name -->
+            <div>
+                <app-label for="name">Nombre</app-label>
+                <app-input-field
+                    id="name"
+                    type="text"
+                    placeholder="Ingresa el nombre del rol"
+                    [value]="formData().name"
+                    (valueChange)="updateFormField('name', $event.toString())"
+                />
+            </div>
+
+            <!-- Description -->
+            <div>
+                <app-label for="description">Descripción</app-label>
+                <app-text-area
+                    id="description"
+                    placeholder="Ingresa una descripción"
+                    [rows]="3"
+                    [value]="formData().description"
+                    (valueChange)="updateFormField('description', $event)"
+                />
+            </div>
+
+            <!-- Permissions -->
+            <div>
+                <app-label>Permisos</app-label>
+                <div
+                    class="mt-3 max-h-64 overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-700"
+                >
+                    @for (module of getModuleKeys(); track module) {
+                        <div
+                            class="border-b border-gray-200 last:border-b-0 dark:border-gray-700"
+                        >
+                            <div class="bg-gray-50 px-4 py-2 dark:bg-gray-800">
+                                <span
+                                    class="text-sm font-medium capitalize text-gray-700 dark:text-gray-300"
+                                >
+                                    {{ module }}
+                                </span>
+                            </div>
+                            <div class="space-y-2 px-4 py-3">
+                                @for (
+                                    permission of groupedPermissions()[module];
+                                    track permission.id
+                                ) {
+                                    <app-checkbox
+                                        [id]="'permission-' + permission.id"
+                                        [label]="permission.description"
+                                        [checked]="
+                                            isPermissionSelected(permission.id)
+                                        "
+                                        (checkedChange)="
+                                            togglePermission(
+                                                permission.id,
+                                                $event
+                                            )
+                                        "
+                                    />
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div
+                class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700"
+            >
+                <app-button
+                    variant="outline"
+                    type="button"
+                    (btnClick)="closeFormModal()"
+                >
+                    Cancelar
+                </app-button>
+                <app-button variant="primary" type="submit">
+                    {{ isEditing() ? "Guardar Cambios" : "Crear Rol" }}
+                </app-button>
+            </div>
+        </form>
+    </div>
+</app-modal>
+
+<!-- Delete Confirmation Modal -->
+<app-confirm-modal
+    [isOpen]="isDeleteModalOpen()"
+    title="Eliminar Rol"
+    [message]="
+        '¿Estás seguro de eliminar el rol ' +
+        (currentRole()?.name ?? '') +
+        '? Esta acción no se puede deshacer.'
+    "
+    confirmText="Eliminar"
+    cancelText="Cancelar"
+    variant="danger"
+    (confirm)="deleteRole()"
+    (cancel)="closeDeleteModal()"
+/>

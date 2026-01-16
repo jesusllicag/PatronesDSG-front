@@ -1,6 +1,572 @@
-<app-page-breadcrumb pageTitle="Usuarios" />
 <div>
-    <app-component-card title="Gestion de usuarios">
-        <app-users-table />
-    </app-component-card>
+    <app-page-breadcrumb pageTitle="Usuarios" />
+
+    <div
+        class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]"
+    >
+        <!-- Header -->
+        <div
+            class="flex flex-col gap-4 border-b border-gray-200 px-5 py-4 dark:border-gray-800 sm:flex-row sm:items-center sm:justify-between sm:px-6"
+        >
+            <div>
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">
+                    Gestión de Usuarios
+                </h3>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    Administra usuarios y sus estados de aprobación
+                </p>
+            </div>
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <app-search-input
+                    placeholder="Buscar usuarios..."
+                    [debounceMs]="3000"
+                    className="w-full sm:w-64"
+                    (searchChange)="onSearchChange($event)"
+                />
+                <app-button variant="primary" (btnClick)="openCreateModal()">
+                    <svg
+                        class="w-5 h-5 mr-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M12 4v16m8-8H4"
+                        />
+                    </svg>
+                    Nuevo Usuario
+                </app-button>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-hidden">
+            <div class="max-w-full overflow-x-auto">
+                <table class="min-w-full">
+                    <thead
+                        class="border-b border-gray-100 dark:border-white/[0.05]"
+                    >
+                        <tr>
+                            <th
+                                class="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                            >
+                                Usuario
+                            </th>
+                            <th
+                                class="px-4 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                            >
+                                Rol
+                            </th>
+                            <th
+                                class="px-4 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                            >
+                                Fecha de Registro
+                            </th>
+                            <th
+                                class="px-4 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                            >
+                                Estado
+                            </th>
+                            <th
+                                class="px-4 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
+                            >
+                                Acciones
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody
+                        class="divide-y divide-gray-100 dark:divide-white/[0.05]"
+                    >
+                        @if (loading()) {
+                            <tr>
+                                <td colspan="5" class="px-5 py-8 text-center">
+                                    <div
+                                        class="flex items-center justify-center gap-2"
+                                    >
+                                        <svg
+                                            class="animate-spin h-5 w-5 text-brand-500"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <circle
+                                                class="opacity-25"
+                                                cx="12"
+                                                cy="12"
+                                                r="10"
+                                                stroke="currentColor"
+                                                stroke-width="4"
+                                            ></circle>
+                                            <path
+                                                class="opacity-75"
+                                                fill="currentColor"
+                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                            ></path>
+                                        </svg>
+                                        <span
+                                            class="text-gray-500 dark:text-gray-400"
+                                            >Cargando...</span
+                                        >
+                                    </div>
+                                </td>
+                            </tr>
+                        } @else if (paginatedUsers().length === 0) {
+                            <tr>
+                                <td
+                                    colspan="5"
+                                    class="px-5 py-8 text-center text-gray-500 dark:text-gray-400"
+                                >
+                                    @if (searchTerm()) {
+                                        No se encontraron usuarios que coincidan
+                                        con "{{ searchTerm() }}"
+                                    } @else {
+                                        No hay usuarios registrados
+                                    }
+                                </td>
+                            </tr>
+                        } @else {
+                            @for (
+                                user of paginatedUsers();
+                                track trackById($index, user)
+                            ) {
+                                <tr
+                                    class="hover:bg-gray-50 dark:hover:bg-white/[0.02]"
+                                >
+                                    <!-- User Info -->
+                                    <td class="px-5 py-4">
+                                        <div class="flex items-center gap-3">
+                                            <div
+                                                class="h-10 w-10 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700"
+                                            >
+                                                @if (user.image) {
+                                                    <img
+                                                        [src]="user.image"
+                                                        [alt]="user.name"
+                                                        class="h-full w-full object-cover"
+                                                    />
+                                                } @else {
+                                                    <div
+                                                        class="flex h-full w-full items-center justify-center text-gray-500 dark:text-gray-400"
+                                                    >
+                                                        <svg
+                                                            class="h-6 w-6"
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            viewBox="0 0 24 24"
+                                                        >
+                                                            <path
+                                                                stroke-linecap="round"
+                                                                stroke-linejoin="round"
+                                                                stroke-width="2"
+                                                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                                            />
+                                                        </svg>
+                                                    </div>
+                                                }
+                                            </div>
+                                            <div>
+                                                <span
+                                                    class="block font-medium text-gray-800 text-theme-sm dark:text-white/90"
+                                                >
+                                                    {{ user.name }}
+                                                </span>
+                                                <span
+                                                    class="block text-gray-500 text-theme-xs dark:text-gray-400"
+                                                >
+                                                    {{ user.email }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <!-- Role -->
+                                    <td
+                                        class="px-4 py-4 text-gray-600 text-theme-sm dark:text-gray-300"
+                                    >
+                                        {{ user.role.name }}
+                                    </td>
+
+                                    <!-- Created At -->
+                                    <td
+                                        class="px-4 py-4 text-gray-600 text-theme-sm dark:text-gray-300"
+                                    >
+                                        {{
+                                            user.createdAt | date: "dd/MM/yyyy"
+                                        }}
+                                    </td>
+
+                                    <!-- Status -->
+                                    <td class="px-4 py-4">
+                                        <app-status-badge
+                                            [status]="user.status"
+                                        />
+                                    </td>
+
+                                    <!-- Actions -->
+                                    <td class="px-4 py-4">
+                                        <div
+                                            class="flex items-center justify-center gap-1"
+                                        >
+                                            <!-- Approve Button -->
+                                            <button
+                                                type="button"
+                                                [title]="
+                                                    canApprove(user)
+                                                        ? 'Aprobar usuario'
+                                                        : 'No se puede aprobar este usuario'
+                                                "
+                                                class="p-1.5 rounded-lg transition-colors"
+                                                [class]="
+                                                    canApprove(user)
+                                                        ? 'text-success-500 hover:bg-success-50 dark:hover:bg-success-500/10 cursor-pointer'
+                                                        : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
+                                                "
+                                                [disabled]="!canApprove(user)"
+                                                (click)="
+                                                    canApprove(user) &&
+                                                        openStatusModal(
+                                                            user,
+                                                            'Activo'
+                                                        )
+                                                "
+                                            >
+                                                <svg
+                                                    class="w-5 h-5"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M5 13l4 4L19 7"
+                                                    />
+                                                </svg>
+                                            </button>
+
+                                            <!-- Reject Button -->
+                                            <button
+                                                type="button"
+                                                [title]="
+                                                    canReject(user)
+                                                        ? 'Rechazar usuario'
+                                                        : 'No se puede rechazar este usuario'
+                                                "
+                                                class="p-1.5 rounded-lg transition-colors"
+                                                [class]="
+                                                    canReject(user)
+                                                        ? 'text-error-500 hover:bg-error-50 dark:hover:bg-error-500/10 cursor-pointer'
+                                                        : 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
+                                                "
+                                                [disabled]="!canReject(user)"
+                                                (click)="
+                                                    canReject(user) &&
+                                                        openStatusModal(
+                                                            user,
+                                                            'Rechazado'
+                                                        )
+                                                "
+                                            >
+                                                <svg
+                                                    class="w-5 h-5"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M6 18L18 6M6 6l12 12"
+                                                    />
+                                                </svg>
+                                            </button>
+
+                                            <!-- Edit Button -->
+                                            <button
+                                                type="button"
+                                                title="Editar usuario"
+                                                class="p-1.5 rounded-lg text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-500/10 transition-colors"
+                                                (click)="openEditModal(user)"
+                                            >
+                                                <svg
+                                                    class="w-5 h-5"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                                    />
+                                                </svg>
+                                            </button>
+
+                                            <!-- Delete Button -->
+                                            <button
+                                                type="button"
+                                                title="Eliminar usuario"
+                                                class="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                                (click)="openDeleteModal(user)"
+                                            >
+                                                <svg
+                                                    class="w-5 h-5"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                    />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        @if (totalPages() > 1) {
+            <div
+                class="flex items-center justify-between border-t border-gray-200 px-5 py-4 dark:border-gray-800 sm:px-6"
+            >
+                <div class="text-sm text-gray-500 dark:text-gray-400">
+                    Mostrando {{ (currentPage() - 1) * itemsPerPage + 1 }} -
+                    {{
+                        Math.min(
+                            currentPage() * itemsPerPage,
+                            filteredUsers().length
+                        )
+                    }}
+                    de {{ filteredUsers().length }}
+                </div>
+                <div class="flex items-center gap-2">
+                    <app-button
+                        size="sm"
+                        variant="outline"
+                        [disabled]="currentPage() === 1"
+                        (btnClick)="goToPage(currentPage() - 1)"
+                    >
+                        <svg
+                            class="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M15 19l-7-7 7-7"
+                            />
+                        </svg>
+                    </app-button>
+
+                    <div class="hidden sm:flex items-center gap-1">
+                        @for (page of pageNumbers(); track page) {
+                            <button
+                                (click)="goToPage(page)"
+                                class="flex h-8 w-8 items-center justify-center rounded-lg text-sm font-medium transition-colors"
+                                [class]="
+                                    currentPage() === page
+                                        ? 'bg-brand-500 text-white'
+                                        : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700'
+                                "
+                            >
+                                {{ page }}
+                            </button>
+                        }
+                    </div>
+
+                    <span
+                        class="sm:hidden text-sm text-gray-600 dark:text-gray-400"
+                    >
+                        {{ currentPage() }} / {{ totalPages() }}
+                    </span>
+
+                    <app-button
+                        size="sm"
+                        variant="outline"
+                        [disabled]="currentPage() === totalPages()"
+                        (btnClick)="goToPage(currentPage() + 1)"
+                    >
+                        <svg
+                            class="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M9 5l7 7-7 7"
+                            />
+                        </svg>
+                    </app-button>
+                </div>
+            </div>
+        }
+    </div>
 </div>
+
+<!-- Create/Edit User Modal -->
+<app-modal
+    [isOpen]="isFormModalOpen()"
+    (close)="closeFormModal()"
+    className="max-w-lg"
+>
+    <div class="p-6">
+        <h3 class="mb-6 text-lg font-semibold text-gray-800 dark:text-white">
+            {{ isEditing() ? "Editar Usuario" : "Nuevo Usuario" }}
+        </h3>
+
+        @if (!isEditing()) {
+            <div
+                class="mb-5 rounded-lg bg-warning-50 p-4 dark:bg-warning-500/10"
+            >
+                <div class="flex items-start gap-3">
+                    <svg
+                        class="h-5 w-5 text-warning-500 mt-0.5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                        />
+                    </svg>
+                    <div>
+                        <p
+                            class="text-sm font-medium text-warning-700 dark:text-warning-400"
+                        >
+                            Usuario pendiente de aprobación
+                        </p>
+                        <p
+                            class="mt-1 text-xs text-warning-600 dark:text-warning-500"
+                        >
+                            El nuevo usuario será creado con estado "Pendiente"
+                            y no tendrá acceso hasta que un administrador lo
+                            apruebe.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <form (ngSubmit)="saveUser()" class="space-y-5">
+            <!-- Name -->
+            <div>
+                <app-label for="name">Nombre completo</app-label>
+                <app-input-field
+                    id="name"
+                    type="text"
+                    placeholder="Ingresa el nombre"
+                    [value]="formData().name"
+                    (valueChange)="updateFormField('name', $event.toString())"
+                />
+            </div>
+
+            <!-- Email -->
+            <div>
+                <app-label for="email">Correo electrónico</app-label>
+                <app-input-field
+                    id="email"
+                    type="email"
+                    placeholder="usuario@ejemplo.com"
+                    [value]="formData().email"
+                    (valueChange)="updateFormField('email', $event.toString())"
+                />
+            </div>
+
+            <!-- Password (only for new users) -->
+            @if (!isEditing()) {
+                <div>
+                    <app-label for="password">Contraseña</app-label>
+                    <app-input-field
+                        id="password"
+                        type="password"
+                        placeholder="Ingresa la contraseña"
+                        [value]="formData().password"
+                        (valueChange)="
+                            updateFormField('password', $event.toString())
+                        "
+                    />
+                </div>
+            }
+
+            <!-- Role -->
+            <div>
+                <app-label for="role">Rol asignado</app-label>
+                <app-select
+                    id="role"
+                    placeholder="Selecciona un rol"
+                    [options]="roleOptions()"
+                    [value]="formData().roleId.toString()"
+                    (valueChange)="updateFormField('roleId', +$event)"
+                />
+            </div>
+
+            <!-- Actions -->
+            <div
+                class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700"
+            >
+                <app-button
+                    variant="outline"
+                    type="button"
+                    (btnClick)="closeFormModal()"
+                >
+                    Cancelar
+                </app-button>
+                <app-button variant="primary" type="submit">
+                    {{ isEditing() ? "Guardar Cambios" : "Crear Usuario" }}
+                </app-button>
+            </div>
+        </form>
+    </div>
+</app-modal>
+
+<!-- Delete Confirmation Modal -->
+<app-confirm-modal
+    [isOpen]="isDeleteModalOpen()"
+    title="Eliminar Usuario"
+    [message]="
+        '¿Estás seguro de eliminar al usuario ' +
+        (currentUser()?.name ?? '') +
+        '? Esta acción no se puede deshacer.'
+    "
+    confirmText="Eliminar"
+    cancelText="Cancelar"
+    variant="danger"
+    (confirm)="deleteUser()"
+    (cancel)="closeDeleteModal()"
+/>
+
+<!-- Status Change Confirmation Modal -->
+<app-confirm-modal
+    [isOpen]="isStatusModalOpen()"
+    [title]="getStatusModalTitle()"
+    [message]="getStatusMessage()"
+    [confirmText]="pendingStatus() === 'Activo' ? 'Aprobar' : 'Rechazar'"
+    cancelText="Cancelar"
+    [variant]="getStatusModalVariant()"
+    (confirm)="confirmStatusChange()"
+    (cancel)="closeStatusModal()"
+/>

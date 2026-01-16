@@ -1,0 +1,136 @@
+<div>
+    <app-page-breadcrumb pageTitle="Permisos" />
+
+    <div
+        class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]"
+    >
+        <!-- Header -->
+        <div
+            class="flex flex-wrap items-center justify-between gap-4 border-b border-gray-200 px-5 py-4 dark:border-gray-800 sm:px-6"
+        >
+            <div>
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">
+                    Gestión de Permisos
+                </h3>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    Administra los permisos del sistema organizados por módulo
+                </p>
+            </div>
+            <app-button variant="primary" (btnClick)="openCreateModal()">
+                <svg
+                    class="w-5 h-5 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 4v16m8-8H4"
+                    />
+                </svg>
+                Nuevo Permiso
+            </app-button>
+        </div>
+
+        <!-- Table -->
+        <div class="p-5 sm:p-6">
+            <app-data-table
+                [columns]="columns"
+                [data]="permissions()"
+                [actions]="actions"
+                [loading]="loading()"
+                emptyMessage="No hay permisos registrados"
+                (actionClick)="onActionClick($event)"
+            />
+        </div>
+    </div>
+</div>
+
+<!-- Form Modal -->
+<app-modal
+    [isOpen]="isFormModalOpen()"
+    (close)="closeFormModal()"
+    className="max-w-lg"
+>
+    <div class="p-6">
+        <h3 class="mb-6 text-lg font-semibold text-gray-800 dark:text-white">
+            {{ isEditing() ? "Editar Permiso" : "Nuevo Permiso" }}
+        </h3>
+
+        <form (ngSubmit)="savePermission()" class="space-y-5">
+            <!-- Module -->
+            <div>
+                <app-label for="module">Módulo</app-label>
+                <app-select
+                    id="module"
+                    placeholder="Selecciona un módulo"
+                    [options]="moduleOptions"
+                    [value]="formData().module"
+                    (valueChange)="updateFormField('module', $event)"
+                />
+            </div>
+
+            <!-- Name -->
+            <div>
+                <app-label for="name">Nombre del permiso</app-label>
+                <app-input-field
+                    id="name"
+                    type="text"
+                    placeholder="ej: users.create"
+                    [value]="formData().name"
+                    (valueChange)="updateFormField('name', $event.toString())"
+                />
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    Usa el formato: modulo.accion (ej: users.create,
+                    roles.delete)
+                </p>
+            </div>
+
+            <!-- Description -->
+            <div>
+                <app-label for="description">Descripción</app-label>
+                <app-text-area
+                    id="description"
+                    placeholder="Describe qué permite hacer este permiso"
+                    [rows]="3"
+                    [value]="formData().description"
+                    (valueChange)="updateFormField('description', $event)"
+                />
+            </div>
+
+            <!-- Actions -->
+            <div
+                class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700"
+            >
+                <app-button
+                    variant="outline"
+                    type="button"
+                    (btnClick)="closeFormModal()"
+                >
+                    Cancelar
+                </app-button>
+                <app-button variant="primary" type="submit">
+                    {{ isEditing() ? "Guardar Cambios" : "Crear Permiso" }}
+                </app-button>
+            </div>
+        </form>
+    </div>
+</app-modal>
+
+<!-- Delete Confirmation Modal -->
+<app-confirm-modal
+    [isOpen]="isDeleteModalOpen()"
+    title="Eliminar Permiso"
+    [message]="
+        '¿Estás seguro de eliminar el permiso ' +
+        (currentPermission()?.name ?? '') +
+        '? Los roles que lo tengan asignado perderán este permiso.'
+    "
+    confirmText="Eliminar"
+    cancelText="Cancelar"
+    variant="danger"
+    (confirm)="deletePermission()"
+    (cancel)="closeDeleteModal()"
+/>

@@ -46,9 +46,9 @@ export class AppSidebarComponent {
       icon: `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M8 5a1 1 0 0 1 1-1h11a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-1a1 1 0 1 1 0-2h1V6H9a1 1 0 0 1-1-1Z" clip-rule="evenodd"/><path fill-rule="evenodd" d="M4 7a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2H4Zm0 11v-5.5h11V18H4Z" clip-rule="evenodd"/></svg>`,
       name: "Grupos",
       subItems: [
-        { name: "Comunidades", path: "/comunidades" },
-        { name: "Subcomunidades", path: "/sub-comunidades" },
-        { name: "Colecciones", path: "/colecciones" },
+        { name: "Comunidades", path: "/grupos/comunidades" },
+        { name: "Subcomunidades", path: "/grupos/sub-comunidades" },
+        { name: "Colecciones", path: "/grupos/colecciones" },
       ],
     },
     {
@@ -138,7 +138,7 @@ export class AppSidebarComponent {
   constructor(
     public sidebarService: SidebarService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {
     this.isExpanded$ = this.sidebarService.isExpanded$;
     this.isMobileOpen$ = this.sidebarService.isMobileOpen$;
@@ -152,7 +152,7 @@ export class AppSidebarComponent {
         if (event instanceof NavigationEnd) {
           this.setActiveMenuFromRoute(this.router.url);
         }
-      })
+      }),
     );
 
     // Subscribe to combined observables to close submenus when all are false
@@ -172,7 +172,7 @@ export class AppSidebarComponent {
           // this.subMenuHeights = { ...this.savedSubMenuHeights };
           // this.cdr.detectChanges();
         }
-      })
+      }),
     );
 
     // Initial load
