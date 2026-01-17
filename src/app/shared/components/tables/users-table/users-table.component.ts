@@ -29,7 +29,7 @@ export class UsersTableComponent {
   tableData: User[] = [
     {
       id: 1,
-      image: "/images/user/user-17.jpg",
+      image: "images/user/user-17.jpg",
       name: "Lindsey Curtis",
       email: "lindcurtis@mail.com",
       role: "Web Designer",
@@ -38,7 +38,7 @@ export class UsersTableComponent {
     },
     {
       id: 2,
-      image: "/images/user/user-18.jpg",
+      image: "images/user/user-18.jpg",
       name: "Kaiya George",
       email: "kaiyageorge@mail.com",
       role: "Project Manager",
@@ -47,7 +47,7 @@ export class UsersTableComponent {
     },
     {
       id: 3,
-      image: "/images/user/user-17.jpg",
+      image: "images/user/user-17.jpg",
       name: "Zain Geidt",
       email: "zaingeidt@mail.com",
       role: "Content Writer",
@@ -56,7 +56,7 @@ export class UsersTableComponent {
     },
     {
       id: 4,
-      image: "/images/user/user-20.jpg",
+      image: "images/user/user-20.jpg",
       name: "Abram Schleifer",
       email: "abramschiefer@mail.com",
       role: "Digital Marketer",
@@ -65,7 +65,7 @@ export class UsersTableComponent {
     },
     {
       id: 5,
-      image: "/images/user/user-21.jpg",
+      image: "images/user/user-21.jpg",
       name: "Carla George",
       email: "carlag@mail.com",
       role: "Front-end Developer",

@@ -117,7 +117,7 @@ export class UsersComponent implements OnInit {
           id: 1,
           name: "Carlos Mendoza",
           email: "carlos.mendoza@mail.com",
-          image: "/images/user/user-17.jpg",
+          image: "images/user/user-17.jpg",
           role: {
             id: 1,
             name: "Administrador",
@@ -131,7 +131,7 @@ export class UsersComponent implements OnInit {
           id: 2,
           name: "María García",
           email: "maria.garcia@mail.com",
-          image: "/images/user/user-18.jpg",
+          image: "images/user/user-18.jpg",
           role: {
             id: 2,
             name: "Editor",
@@ -145,7 +145,7 @@ export class UsersComponent implements OnInit {
           id: 3,
           name: "Juan Pérez",
           email: "juan.perez@mail.com",
-          image: "/images/user/user-19.jpg",
+          image: "images/user/user-19.jpg",
           role: {
             id: 3,
             name: "Viewer",
@@ -159,7 +159,7 @@ export class UsersComponent implements OnInit {
           id: 4,
           name: "Ana López",
           email: "ana.lopez@mail.com",
-          image: "/images/user/user-20.jpg",
+          image: "images/user/user-20.jpg",
           role: {
             id: 2,
             name: "Editor",
@@ -173,7 +173,7 @@ export class UsersComponent implements OnInit {
           id: 5,
           name: "Roberto Sánchez",
           email: "roberto.sanchez@mail.com",
-          image: "/images/user/user-21.jpg",
+          image: "images/user/user-21.jpg",
           role: {
             id: 3,
             name: "Viewer",
@@ -187,7 +187,7 @@ export class UsersComponent implements OnInit {
           id: 6,
           name: "Laura Martínez",
           email: "laura.martinez@mail.com",
-          image: "/images/user/user-22.jpg",
+          image: "images/user/user-22.jpg",
           role: {
             id: 1,
             name: "Administrador",
@@ -201,7 +201,7 @@ export class UsersComponent implements OnInit {
           id: 7,
           name: "Diego Ramírez",
           email: "diego.ramirez@mail.com",
-          image: "/images/user/user-23.jpg",
+          image: "images/user/user-23.jpg",
           role: {
             id: 2,
             name: "Editor",
@@ -328,7 +328,7 @@ export class UsersComponent implements OnInit {
         id: newId,
         name: data.name,
         email: data.email,
-        image: "/images/user/user-default.jpg",
+        image: "images/user/user-default.jpg",
         role: selectedRole,
         status: "Pendiente", // New users always start as Pending
         createdAt: new Date(),
