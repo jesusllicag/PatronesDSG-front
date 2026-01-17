@@ -5,9 +5,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "predeploy": "ng build",
-    "deploy": "cd dist/ && add . && git commit -m 'Deploy' && git push origin main",
-    "postdeploy": "cd ..",
+    "deploy": "bash deploy.sh",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
