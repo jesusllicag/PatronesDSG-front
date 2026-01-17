@@ -1,10 +1,13 @@
 {
-  "name": "ng-tailadmin",
+  "name": "patrones-dsg",
   "version": "1.0.2",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "predeploy": "ng build",
+    "deploy": "cd dist/ && add . && git commit -m 'Deploy' && git push origin main",
+    "postdeploy": "cd ..",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
