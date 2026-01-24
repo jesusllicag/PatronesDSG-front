@@ -1,1 +1,974 @@
-<p>licenses works!</p>
+<div>
+    <app-page-breadcrumb pageTitle="Licencias" />
+
+    <div
+        class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]"
+    >
+        <!-- Header -->
+        <div
+            class="flex flex-col gap-4 border-b border-gray-200 px-5 py-4 dark:border-gray-800 sm:flex-row sm:items-center sm:justify-between sm:px-6"
+        >
+            <div>
+                <h3 class="text-lg font-semibold text-gray-800 dark:text-white">
+                    Gestión de Licencias
+                </h3>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                    Administra licencias, archivos adjuntos y políticas de
+                    aceptación
+                </p>
+            </div>
+            <app-button variant="primary" (btnClick)="openCreateModal()">
+                <svg
+                    class="w-5 h-5 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 4v16m8-8H4"
+                    />
+                </svg>
+                Nueva Licencia
+            </app-button>
+        </div>
+
+        <!-- Filters -->
+        <div
+            class="flex flex-col gap-3 border-b border-gray-200 px-5 py-4 dark:border-gray-800 sm:flex-row sm:items-center sm:px-6"
+        >
+            <app-search-input
+                placeholder="Buscar licencias..."
+                [debounceMs]="300"
+                className="w-full sm:w-64"
+                (searchChange)="onSearchChange($event)"
+            />
+            <app-select
+                placeholder="Estado"
+                [options]="statusOptions()"
+                [value]="filterStatus()"
+                (valueChange)="onStatusFilterChange($event)"
+                className="w-full sm:w-44"
+            />
+            <app-select
+                placeholder="Tipo"
+                [options]="typeFilterOptions()"
+                [value]="filterType()"
+                (valueChange)="onTypeFilterChange($event)"
+                className="w-full sm:w-48"
+            />
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-hidden">
+            <div class="max-w-full overflow-x-auto">
+                <table class="min-w-full">
+                    <thead
+                        class="border-b border-gray-100 dark:border-white/[0.05]"
+                    >
+                        <tr>
+                            <th
+                                class="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                            >
+                                Licencia
+                            </th>
+                            <th
+                                class="px-4 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                            >
+                                Tipo
+                            </th>
+                            <th
+                                class="px-4 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                            >
+                                Archivo
+                            </th>
+                            <th
+                                class="px-4 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                            >
+                                Políticas
+                            </th>
+                            <th
+                                class="px-4 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                            >
+                                Vigencia
+                            </th>
+                            <th
+                                class="px-4 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                            >
+                                Estado
+                            </th>
+                            <th
+                                class="px-4 py-3 font-medium text-gray-500 text-center text-theme-xs dark:text-gray-400"
+                            >
+                                Acciones
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody
+                        class="divide-y divide-gray-100 dark:divide-white/[0.05]"
+                    >
+                        @if (loading()) {
+                            <tr>
+                                <td colspan="7" class="px-5 py-8 text-center">
+                                    <div
+                                        class="flex items-center justify-center gap-2"
+                                    >
+                                        <svg
+                                            class="animate-spin h-5 w-5 text-brand-500"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <circle
+                                                class="opacity-25"
+                                                cx="12"
+                                                cy="12"
+                                                r="10"
+                                                stroke="currentColor"
+                                                stroke-width="4"
+                                            ></circle>
+                                            <path
+                                                class="opacity-75"
+                                                fill="currentColor"
+                                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                            ></path>
+                                        </svg>
+                                        <span
+                                            class="text-gray-500 dark:text-gray-400"
+                                            >Cargando...</span
+                                        >
+                                    </div>
+                                </td>
+                            </tr>
+                        } @else if (paginatedLicenses().length === 0) {
+                            <tr>
+                                <td
+                                    colspan="7"
+                                    class="px-5 py-8 text-center text-gray-500 dark:text-gray-400"
+                                >
+                                    @if (
+                                        searchTerm() ||
+                                        filterStatus() ||
+                                        filterType()
+                                    ) {
+                                        No se encontraron licencias con los
+                                        filtros aplicados
+                                    } @else {
+                                        No hay licencias registradas
+                                    }
+                                </td>
+                            </tr>
+                        } @else {
+                            @for (
+                                license of paginatedLicenses();
+                                track trackById($index, license)
+                            ) {
+                                <tr
+                                    class="hover:bg-gray-50 dark:hover:bg-white/[0.02]"
+                                >
+                                    <!-- License Info -->
+                                    <td class="px-5 py-4">
+                                        <div class="max-w-xs">
+                                            <span
+                                                class="block font-medium text-gray-800 text-theme-sm dark:text-white/90 truncate"
+                                            >
+                                                {{ license.name }}
+                                            </span>
+                                            <span
+                                                class="block text-gray-500 text-theme-xs dark:text-gray-400 mt-0.5"
+                                            >
+                                                v{{ license.version }}
+                                            </span>
+                                        </div>
+                                    </td>
+
+                                    <!-- Type -->
+                                    <td class="px-4 py-4">
+                                        <app-badge
+                                            [color]="
+                                                getTypeBadgeColor(license.type)
+                                            "
+                                            variant="light"
+                                            size="sm"
+                                        >
+                                            {{ license.type }}
+                                        </app-badge>
+                                    </td>
+
+                                    <!-- File -->
+                                    <td class="px-4 py-4">
+                                        @if (license.file) {
+                                            <div
+                                                class="flex items-center gap-2"
+                                            >
+                                                <svg
+                                                    class="w-4 h-4 text-error-500"
+                                                    fill="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path
+                                                        d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 2l5 5h-5V4z"
+                                                    />
+                                                </svg>
+                                                <div class="min-w-0">
+                                                    <span
+                                                        class="block text-xs text-gray-700 dark:text-gray-300 truncate max-w-[120px]"
+                                                    >
+                                                        {{
+                                                            license.file
+                                                                .originalName
+                                                        }}
+                                                    </span>
+                                                    <span
+                                                        class="text-xs text-gray-400"
+                                                    >
+                                                        {{
+                                                            formatFileSize(
+                                                                license.file
+                                                                    .size
+                                                            )
+                                                        }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        } @else {
+                                            <span
+                                                class="text-xs text-gray-400 dark:text-gray-500 italic"
+                                            >
+                                                Sin archivo
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <!-- Policies -->
+                                    <td class="px-4 py-4">
+                                        <div class="flex items-center gap-1.5">
+                                            <div
+                                                class="flex items-center gap-1"
+                                            >
+                                                <svg
+                                                    class="w-4 h-4 text-success-500"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                                    />
+                                                </svg>
+                                                <span
+                                                    class="text-sm text-gray-700 dark:text-gray-300"
+                                                >
+                                                    {{
+                                                        getAcceptedPoliciesCount(
+                                                            license
+                                                        )
+                                                    }}
+                                                </span>
+                                            </div>
+                                            <span class="text-gray-400">/</span>
+                                            <span
+                                                class="text-sm text-gray-500 dark:text-gray-400"
+                                            >
+                                                {{
+                                                    license.policyAcceptances
+                                                        .length
+                                                }}
+                                            </span>
+                                        </div>
+                                    </td>
+
+                                    <!-- Validity -->
+                                    <td class="px-4 py-4">
+                                        <div class="text-xs">
+                                            <span
+                                                class="text-gray-600 dark:text-gray-300"
+                                            >
+                                                {{
+                                                    license.validFrom
+                                                        | date: "dd/MM/yyyy"
+                                                }}
+                                            </span>
+                                            @if (license.validUntil) {
+                                                <span class="text-gray-400 mx-1"
+                                                    >-</span
+                                                >
+                                                <span
+                                                    class="text-gray-600 dark:text-gray-300"
+                                                >
+                                                    {{
+                                                        license.validUntil
+                                                            | date: "dd/MM/yyyy"
+                                                    }}
+                                                </span>
+                                            } @else {
+                                                <span
+                                                    class="block text-gray-400 dark:text-gray-500 italic"
+                                                >
+                                                    Sin vencimiento
+                                                </span>
+                                            }
+                                        </div>
+                                    </td>
+
+                                    <!-- Status -->
+                                    <td class="px-4 py-4">
+                                        <app-badge
+                                            [color]="
+                                                getStatusBadgeColor(
+                                                    license.status
+                                                )
+                                            "
+                                            variant="light"
+                                            size="sm"
+                                        >
+                                            {{ license.status }}
+                                        </app-badge>
+                                    </td>
+
+                                    <!-- Actions -->
+                                    <td class="px-4 py-4">
+                                        <div
+                                            class="flex items-center justify-center gap-1"
+                                        >
+                                            <!-- View Button -->
+                                            <button
+                                                type="button"
+                                                title="Ver detalles"
+                                                class="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                                (click)="
+                                                    openDetailModal(license)
+                                                "
+                                            >
+                                                <svg
+                                                    class="w-5 h-5"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                                    />
+                                                    <path
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                                    />
+                                                </svg>
+                                            </button>
+
+                                            <!-- Edit Button -->
+                                            <button
+                                                type="button"
+                                                title="Editar licencia"
+                                                class="p-1.5 rounded-lg text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-500/10 transition-colors"
+                                                (click)="openEditModal(license)"
+                                            >
+                                                <svg
+                                                    class="w-5 h-5"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                                    />
+                                                </svg>
+                                            </button>
+
+                                            <!-- Delete Button -->
+                                            <button
+                                                type="button"
+                                                title="Eliminar licencia"
+                                                class="p-1.5 rounded-lg text-error-500 hover:bg-error-50 dark:hover:bg-error-500/10 transition-colors"
+                                                (click)="
+                                                    openDeleteModal(license)
+                                                "
+                                            >
+                                                <svg
+                                                    class="w-5 h-5"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path
+                                                        stroke-linecap="round"
+                                                        stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                    />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        @if (totalPages() > 1) {
+            <div
+                class="flex items-center justify-between border-t border-gray-200 px-5 py-4 dark:border-gray-800 sm:px-6"
+            >
+                <div class="text-sm text-gray-500 dark:text-gray-400">
+                    Mostrando {{ (currentPage() - 1) * itemsPerPage + 1 }} -
+                    {{
+                        Math.min(
+                            currentPage() * itemsPerPage,
+                            filteredLicenses().length
+                        )
+                    }}
+                    de {{ filteredLicenses().length }}
+                </div>
+                <div class="flex items-center gap-2">
+                    <app-button
+                        size="sm"
+                        variant="outline"
+                        [disabled]="currentPage() === 1"
+                        (btnClick)="goToPage(currentPage() - 1)"
+                    >
+                        <svg
+                            class="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M15 19l-7-7 7-7"
+                            />
+                        </svg>
+                    </app-button>
+
+                    <div class="hidden sm:flex items-center gap-1">
+                        @for (page of pageNumbers(); track page) {
+                            <button
+                                (click)="goToPage(page)"
+                                class="flex h-8 w-8 items-center justify-center rounded-lg text-sm font-medium transition-colors"
+                                [class]="
+                                    currentPage() === page
+                                        ? 'bg-brand-500 text-white'
+                                        : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700'
+                                "
+                            >
+                                {{ page }}
+                            </button>
+                        }
+                    </div>
+
+                    <span
+                        class="sm:hidden text-sm text-gray-600 dark:text-gray-400"
+                    >
+                        {{ currentPage() }} / {{ totalPages() }}
+                    </span>
+
+                    <app-button
+                        size="sm"
+                        variant="outline"
+                        [disabled]="currentPage() === totalPages()"
+                        (btnClick)="goToPage(currentPage() + 1)"
+                    >
+                        <svg
+                            class="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M9 5l7 7-7 7"
+                            />
+                        </svg>
+                    </app-button>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Create/Edit License Modal -->
+<app-modal
+    [isOpen]="isFormModalOpen()"
+    (close)="closeFormModal()"
+    className="max-w-2xl"
+>
+    <div class="p-6">
+        <h3 class="mb-6 text-lg font-semibold text-gray-800 dark:text-white">
+            {{ isEditing() ? "Editar Licencia" : "Nueva Licencia" }}
+        </h3>
+
+        <form (ngSubmit)="saveLicense()" class="space-y-5">
+            <!-- Name -->
+            <div>
+                <app-label for="name">Nombre de la Licencia</app-label>
+                <app-input-field
+                    id="name"
+                    type="text"
+                    placeholder="Ej: Licencia Creative Commons BY-SA 4.0"
+                    [value]="formData().name"
+                    (valueChange)="updateFormField('name', $event.toString())"
+                />
+            </div>
+
+            <!-- Description -->
+            <div>
+                <app-label for="description">Descripción</app-label>
+                <app-text-area
+                    id="description"
+                    placeholder="Describe los términos y condiciones de la licencia..."
+                    [value]="formData().description"
+                    (valueChange)="updateFormField('description', $event)"
+                    [rows]="3"
+                />
+            </div>
+
+            <!-- Type and Version -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <app-label for="type">Tipo de Licencia</app-label>
+                    <app-select
+                        id="type"
+                        placeholder="Selecciona un tipo"
+                        [options]="typeOptions()"
+                        [value]="formData().type"
+                        (valueChange)="updateFormField('type', $event)"
+                    />
+                </div>
+                <div>
+                    <app-label for="version">Versión</app-label>
+                    <app-input-field
+                        id="version"
+                        type="text"
+                        placeholder="Ej: 4.0"
+                        [value]="formData().version"
+                        (valueChange)="
+                            updateFormField('version', $event.toString())
+                        "
+                    />
+                </div>
+            </div>
+
+            <!-- Validity Dates -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <app-label for="validFrom">Fecha de Inicio</app-label>
+                    <app-input-field
+                        id="validFrom"
+                        type="date"
+                        [value]="formData().validFrom"
+                        (valueChange)="
+                            updateFormField('validFrom', $event.toString())
+                        "
+                    />
+                </div>
+                <div>
+                    <app-label for="validUntil"
+                        >Fecha de Vencimiento (Opcional)</app-label
+                    >
+                    <app-input-field
+                        id="validUntil"
+                        type="date"
+                        [value]="formData().validUntil"
+                        (valueChange)="
+                            updateFormField('validUntil', $event.toString())
+                        "
+                    />
+                </div>
+            </div>
+
+            <!-- File Upload -->
+            <div>
+                <app-label>Archivo de Licencia</app-label>
+                <app-file-uploader
+                    accept=".pdf,.doc,.docx"
+                    [maxSizeMB]="10"
+                    label="Arrastra y suelta el documento de licencia"
+                    hint="Formatos permitidos: PDF, DOC, DOCX"
+                    [existingFileName]="currentLicense()?.file?.originalName"
+                    [existingFileUrl]="currentLicense()?.file?.url"
+                    (fileSelected)="onFileSelected($event)"
+                    (fileRemoved)="onFileRemoved()"
+                />
+            </div>
+
+            <!-- Policy Acceptances -->
+            <div>
+                <app-label>Políticas de Aceptación</app-label>
+                <div class="mt-2">
+                    <app-policy-checkbox-list
+                        [policies]="policies()"
+                        [acceptances]="formData().policyAcceptances"
+                        (acceptanceChange)="onPolicyAcceptanceChange($event)"
+                    />
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div
+                class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700"
+            >
+                <app-button
+                    variant="outline"
+                    type="button"
+                    (btnClick)="closeFormModal()"
+                >
+                    Cancelar
+                </app-button>
+                <app-button
+                    variant="primary"
+                    type="submit"
+                    [disabled]="!isFormValid()"
+                >
+                    {{ isEditing() ? "Guardar Cambios" : "Crear Licencia" }}
+                </app-button>
+            </div>
+        </form>
+    </div>
+</app-modal>
+
+<!-- License Detail Modal -->
+<app-modal
+    [isOpen]="isDetailModalOpen()"
+    (close)="closeDetailModal()"
+    className="max-w-2xl"
+>
+    @if (currentLicense(); as license) {
+        <div class="p-6">
+            <div class="flex items-start justify-between mb-6">
+                <div>
+                    <h3
+                        class="text-lg font-semibold text-gray-800 dark:text-white"
+                    >
+                        {{ license.name }}
+                    </h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        Versión {{ license.version }}
+                    </p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <app-badge
+                        [color]="getTypeBadgeColor(license.type)"
+                        variant="light"
+                    >
+                        {{ license.type }}
+                    </app-badge>
+                    <app-badge
+                        [color]="getStatusBadgeColor(license.status)"
+                        variant="light"
+                    >
+                        {{ license.status }}
+                    </app-badge>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="mb-6">
+                <h4
+                    class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
+                    Descripción
+                </h4>
+                <p
+                    class="text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-lg p-4"
+                >
+                    {{ license.description }}
+                </p>
+            </div>
+
+            <!-- Validity -->
+            <div class="mb-6">
+                <h4
+                    class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
+                    Período de Vigencia
+                </h4>
+                <div class="flex items-center gap-4 text-sm">
+                    <div class="flex items-center gap-2">
+                        <svg
+                            class="w-4 h-4 text-gray-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            />
+                        </svg>
+                        <span class="text-gray-600 dark:text-gray-300">
+                            Desde: {{ license.validFrom | date: "dd/MM/yyyy" }}
+                        </span>
+                    </div>
+                    @if (license.validUntil) {
+                        <div class="flex items-center gap-2">
+                            <svg
+                                class="w-4 h-4 text-gray-400"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                />
+                            </svg>
+                            <span class="text-gray-600 dark:text-gray-300">
+                                Hasta:
+                                {{ license.validUntil | date: "dd/MM/yyyy" }}
+                            </span>
+                        </div>
+                    } @else {
+                        <span class="text-gray-400 dark:text-gray-500 italic"
+                            >Sin fecha de vencimiento</span
+                        >
+                    }
+                </div>
+            </div>
+
+            <!-- File -->
+            @if (license.file) {
+                <div class="mb-6">
+                    <h4
+                        class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                    >
+                        Archivo Adjunto
+                    </h4>
+                    <div
+                        class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                    >
+                        <div
+                            class="w-12 h-12 rounded-lg bg-error-100 dark:bg-error-500/20 flex items-center justify-center flex-shrink-0"
+                        >
+                            <svg
+                                class="w-6 h-6 text-error-500"
+                                fill="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 2l5 5h-5V4z"
+                                />
+                            </svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p
+                                class="text-sm font-medium text-gray-800 dark:text-white truncate"
+                            >
+                                {{ license.file.originalName }}
+                            </p>
+                            <p
+                                class="text-xs text-gray-500 dark:text-gray-400 mt-0.5"
+                            >
+                                {{ formatFileSize(license.file.size) }} - Subido
+                                el
+                                {{
+                                    license.file.uploadedAt | date: "dd/MM/yyyy"
+                                }}
+                            </p>
+                        </div>
+                        <a
+                            [href]="license.file.url"
+                            target="_blank"
+                            class="flex-shrink-0 p-2 rounded-lg bg-brand-500 text-white hover:bg-brand-600 transition-colors"
+                            title="Descargar archivo"
+                        >
+                            <svg
+                                class="w-5 h-5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                                />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            }
+
+            <!-- Policy Acceptances -->
+            <div class="mb-6">
+                <h4
+                    class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
+                >
+                    Políticas de Aceptación ({{
+                        getAcceptedPoliciesCount(license)
+                    }}/{{ license.policyAcceptances.length }})
+                </h4>
+                <div class="space-y-2">
+                    @for (
+                        acceptance of license.policyAcceptances;
+                        track acceptance.policyId
+                    ) {
+                        @if (getPolicyById(acceptance.policyId); as policy) {
+                            <div
+                                class="flex items-start gap-3 p-3 rounded-lg"
+                                [class.bg-success-50]="acceptance.accepted"
+                                [class.dark:bg-success-500/10]="
+                                    acceptance.accepted
+                                "
+                                [class.bg-gray-50]="!acceptance.accepted"
+                                [class.dark:bg-gray-800]="!acceptance.accepted"
+                            >
+                                <div class="flex-shrink-0 mt-0.5">
+                                    @if (acceptance.accepted) {
+                                        <svg
+                                            class="w-5 h-5 text-success-500"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                            />
+                                        </svg>
+                                    } @else {
+                                        <svg
+                                            class="w-5 h-5 text-gray-400"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                            />
+                                        </svg>
+                                    }
+                                </div>
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2">
+                                        <span
+                                            class="text-sm font-medium"
+                                            [class.text-gray-800]="
+                                                acceptance.accepted
+                                            "
+                                            [class.dark:text-white]="
+                                                acceptance.accepted
+                                            "
+                                            [class.text-gray-600]="
+                                                !acceptance.accepted
+                                            "
+                                            [class.dark:text-gray-400]="
+                                                !acceptance.accepted
+                                            "
+                                        >
+                                            {{ policy.name }}
+                                        </span>
+                                        @if (policy.required) {
+                                            <span
+                                                class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-error-100 text-error-700 dark:bg-error-500/20 dark:text-error-400"
+                                            >
+                                                Requerida
+                                            </span>
+                                        }
+                                    </div>
+                                    <p
+                                        class="text-xs text-gray-500 dark:text-gray-400 mt-1"
+                                    >
+                                        {{ policy.description }}
+                                    </p>
+                                    @if (
+                                        acceptance.accepted &&
+                                        acceptance.acceptedAt
+                                    ) {
+                                        <p
+                                            class="text-xs text-success-600 dark:text-success-400 mt-1"
+                                        >
+                                            Aceptada el
+                                            {{
+                                                acceptance.acceptedAt
+                                                    | date: "dd/MM/yyyy HH:mm"
+                                            }}
+                                        </p>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+
+            <!-- Metadata -->
+            <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div
+                    class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400"
+                >
+                    <span
+                        >Creada:
+                        {{ license.createdAt | date: "dd/MM/yyyy HH:mm" }}</span
+                    >
+                    @if (license.updatedAt) {
+                        <span
+                            >Actualizada:
+                            {{
+                                license.updatedAt | date: "dd/MM/yyyy HH:mm"
+                            }}</span
+                        >
+                    }
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div
+                class="flex items-center justify-end gap-3 pt-4 mt-4 border-t border-gray-200 dark:border-gray-700"
+            >
+                <app-button variant="outline" (btnClick)="closeDetailModal()">
+                    Cerrar
+                </app-button>
+                <app-button
+                    variant="primary"
+                    (btnClick)="closeDetailModal(); openEditModal(license)"
+                >
+                    Editar Licencia
+                </app-button>
+            </div>
+        </div>
+    }
+</app-modal>
+
+<!-- Delete Confirmation Modal -->
+<!--<app-confirm-modal
+    [isOpen]="isDeleteModalOpen()"
+    title="Eliminar Licencia"
+    message="¿Estás seguro de eliminar la licencia {{
+        currentLicense()?.name.toString()
+    }} ? Esta acción no se puede deshacer."
+    confirmText="Eliminar"
+    cancelText="Cancelar"
+    variant="danger"
+    (confirm)="deleteLicense()"
+    (cancel)="closeDeleteModal()"
+/>-->

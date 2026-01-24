@@ -30,6 +30,7 @@ import { CollectionsComponent } from "./pages/groups/collections/collections.com
 import { CollectionFormComponent } from "./pages/groups/collections/collection-form/collection-form.component";
 import { AllSubcommunitiesComponent } from "./pages/groups/all-subcommunities/all-subcommunities.component";
 import { AllCollectionsComponent } from "./pages/groups/all-collections/all-collections.component";
+import { LicensesComponent } from "./pages/licenses/licenses.component";
 
 export const routes: Routes = [
   {
@@ -123,6 +124,12 @@ export const routes: Routes = [
         path: "grupos/comunidades/:communityId/subcomunidades/:subcommunityId/colecciones/:id",
         component: CollectionFormComponent,
         title: "Editar Colección",
+      },
+      {
+        path: "licencias",
+        component: LicensesComponent,
+        pathMatch: "full",
+        title: "Licencias",
       },
       {
         path: "calendar",
